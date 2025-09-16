@@ -68,6 +68,10 @@ class UserUpdate(SQLModel):
     is_active: Optional[bool] = None
     artist_bio: Optional[str] = None
     artist_website: Optional[str] = None
+
+
+
+
 class Music(SQLModel, table=True):
     __tablename__ = "musics"
     
@@ -106,50 +110,46 @@ class Music(SQLModel, table=True):
 
 class PaymentCode(SQLModel, table=True):
     __tablename__ = "payment_codes"
-    
     id: Optional[int] = Field(default=None, primary_key=True)
     code: str = Field(unique=True, index=True)
     music_id: int = Field(foreign_key="musics.id")
-    
     # Paramètres du code
     price: Decimal
     is_used: bool = Field(default=False)
     expires_at: datetime
-    
     # Métadonnées d'utilisation
     created_at: datetime = Field(default_factory=datetime.utcnow)
     used_at: Optional[datetime] = None
     used_by_client_id: Optional[int] = Field(default=None, foreign_key="users.id")
-    
     # Relations
     music: Optional[Music] = Relationship(back_populates="payment_codes")
     used_by: Optional[User] = Relationship(back_populates="used_payment_codes")
     purchases: List["Purchase"] = Relationship(back_populates="payment_code")
 
+
+
+
 class Purchase(SQLModel, table=True):
     __tablename__ = "purchases"
-    
     id: Optional[int] = Field(default=None, primary_key=True)
     client_id: int = Field(foreign_key="users.id")
     music_id: int = Field(foreign_key="musics.id")
     payment_code_id: Optional[int] = Field(default=None, foreign_key="payment_codes.id")
-    
     # Détails de l'achat
     amount_paid: Decimal
     status: PaymentStatus = Field(default=PaymentStatus.COMPLETED)
-    
     # Gestion des téléchargements
     download_count: int = Field(default=0)
     max_downloads: int = Field(default=5)
-    
     # Timestamp
     purchased_at: datetime = Field(default_factory=datetime.utcnow)
-    
     # Relations
     client: Optional[User] = Relationship(back_populates="purchases")
     music: Optional[Music] = Relationship(back_populates="purchases")
     payment_code: Optional[PaymentCode] = Relationship(back_populates="purchases")
     download_logs: List["DownloadLog"] = Relationship(back_populates="purchase")
+
+    
 
 class Favorite(SQLModel, table=True):
     __tablename__ = "favorites"
@@ -187,6 +187,75 @@ class DownloadLog(SQLModel, table=True):
     
     # Relations
     purchase: Optional[Purchase] = Relationship(back_populates="download_logs")
+
+
+
+class MusicRead(SQLModel):
+    id: int
+    title: str
+    description: Optional[str] = None
+    genre: Optional[str] = None
+    duration: Optional[int] = None
+    cover_image_path: Optional[str] = None
+    is_free: bool
+    price: Decimal
+    status: MusicStatus
+    play_count: int
+    download_count: int
+    artist_id: int
+    created_at: datetime
+    # Relations
+    artist: Optional[UserReade] = None
+
+class PurchaseCreate(SQLModel):
+    music_id: int
+    payment_code: str
+
+class PurchaseRead(SQLModel):
+    id: int
+    client_id: int
+    music_id: int
+    payment_code_id: Optional[int] = None
+    amount_paid: Decimal
+    status: PaymentStatus
+    download_count: int
+    max_downloads: int
+    purchased_at: datetime
+    # Relations
+    music: Optional[MusicRead] = None
+
+class FavoriteCreate(SQLModel):
+    music_id: int
+
+class FavoriteRead(SQLModel):
+    id: int
+    user_id: int
+    music_id: int
+    created_at: datetime
+    # Relations
+    music: Optional[MusicRead] = None
+
+class PlayHistoryCreate(SQLModel):
+    music_id: int
+    duration_played: int = 0
+
+class PlayHistoryRead(SQLModel):
+    id: int
+    user_id: int
+    music_id: int
+    played_at: datetime
+    duration_played: int
+    # Relations
+    music: Optional[MusicRead] = None
+
+class ClientStats(SQLModel):
+    total_purchases: int
+    total_spent: Decimal
+    total_favorites: int
+    total_play_time: int  # en secondes
+    favorite_genre: Optional[str] = None
+    total_downloads: int
+
 
 # ===== FONCTIONS UTILITAIRES =====
 

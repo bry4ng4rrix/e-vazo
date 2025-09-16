@@ -3,8 +3,10 @@ from database import create_db_and_tables , get_session
 
 
 from routers.musique import musique_router
-from routers.user import user_router
+from routers.artiste import artiste_router
+from routers.user import admin_router
 from routers.auth import router as auth_router
+from routers.client import client_router
 
 
 
@@ -14,8 +16,9 @@ from routers.auth import router as auth_router
 app = FastAPI()
 
 app.include_router(auth_router, prefix="/api", tags=["Authentification"])
-app.include_router(user_router, prefix="/api/user", tags=["Utilisateurs"])
-app.include_router(musique_router, prefix="/api/musique", tags=["Musique"])
+app.include_router(artiste_router, prefix="/api/artiste", tags=["Artiste"])
+app.include_router(client_router, prefix="/api/client", tags=["Client"])
+app.include_router(admin_router, prefix="/api/admin", tags=["Utilisateurs"])
 
 
 @app.on_event("startup")
