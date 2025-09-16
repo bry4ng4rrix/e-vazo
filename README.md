@@ -49,10 +49,6 @@ uvicorn main:app --reload
 
 L'application sera accessible sur **http://localhost:8000**
 
-**Comptes par défaut :**
-- 👑 **Admin** : `admin@musicplatform.com` / `admin123`
-- 🎨 **Artiste** : `artiste@example.com` / `password123`
-- 👤 **Client** : `client@example.com` / `password123`
 
 ## 📚 Documentation
 
