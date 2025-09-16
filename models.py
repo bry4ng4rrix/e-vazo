@@ -1,5 +1,5 @@
 from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional, List
+from typing import Optional, List ,Dict ,Any
 from datetime import datetime, timedelta
 from decimal import Decimal
 from enum import Enum
@@ -255,6 +255,33 @@ class ClientStats(SQLModel):
     total_play_time: int  # en secondes
     favorite_genre: Optional[str] = None
     total_downloads: int
+
+class EndpointInfo(SQLModel):
+    path: str
+    methods: List[str]
+    name: str
+    summary: Optional[str] = None
+    tags: List[str]
+
+class HealthStatus(SQLModel):
+    status: str
+    timestamp: datetime
+    version: str
+    database_status: str
+    uptime_seconds: float
+
+class StorageInfo(SQLModel):
+    uploads_folder: Dict[str, Any]
+    system_storage: Dict[str, Any]
+    database_size: Dict[str, Any]
+
+class SystemInfo(SQLModel):
+    platform: str
+    python_version: str
+    cpu_count: int
+    memory_total_gb: float
+    memory_available_gb: float
+    cpu_usage_percent: float
 
 
 # ===== FONCTIONS UTILITAIRES =====
