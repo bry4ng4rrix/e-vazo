@@ -14,7 +14,7 @@ SECRET_KEY = "bryangarrix"  # Change to a secure key in production
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # ===== MODÈLES POUR L'AUTH =====
@@ -109,10 +109,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), session: Session
     return user
 
 async def get_user_from_token(token: str, session: Session) -> User:
-    """
-    Authentifie un utilisateur à partir d'un token JWT pour WebSocket
-    Retourne None si le token est invalide ou blacklisté
-    """
+
     try:
         # Vérifier si le token est blacklisté
         if is_token_blacklisted(token, session):
@@ -228,7 +225,7 @@ async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(), 
     session: Session = Depends(get_session)
 ):
-    """Connexion et génération du token d'accès"""
+  
     user = authenticate_user(form_data.username, form_data.password, session)
     if not user:
         raise HTTPException(
@@ -265,9 +262,34 @@ async def read_current_user(current_user: User = Depends(get_current_user)):
         updated_at=current_user.updated_at
     )
 
+@router.put("/me", response_model=UserRead)
+async def update_current_user(
+    current_user: User = Depends(get_current_user), 
+    user_update: UserCreate = Depends(), 
+    session: Session = Depends(get_session)
+):  
+    user_update_dict = user_update.dict(exclude_unset=True)
+    for key, value in user_update_dict.items():
+        setattr(current_user, key, value)
+    session.add(current_user)
+    session.commit()
+    session.refresh(current_user)
+    return UserRead(
+        id=current_user.id,
+        name=current_user.username,  # Mapper username -> name
+        email=current_user.email,
+        role=current_user.role,
+        full_name=current_user.full_name,
+        artist_bio=current_user.artist_bio,
+        artist_website=current_user.artist_website,
+        is_active=current_user.is_active,
+        created_at=current_user.created_at,
+        updated_at=current_user.updated_at
+    )
+
 @router.post("/logout")
 async def logout(token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)):
-    """Déconnexion - ajouter le token à la blacklist"""
+    
     try:
         # Vérifier que le token est valide avant de le blacklister
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

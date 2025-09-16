@@ -51,6 +51,23 @@ class User(SQLModel, table=True):
     play_history: List["PlayHistory"] = Relationship(back_populates="user")
     used_payment_codes: List["PaymentCode"] = Relationship(back_populates="used_by")
 
+class UserReade(SQLModel):
+    id: int
+    email: str
+    username: str
+    full_name: str
+    role: str
+    is_active: bool
+
+class UserUpdate(SQLModel):
+    email: Optional[str] = None
+    username: Optional[str] = None
+    hashed_password: Optional[str] = None
+    full_name: Optional[str] = None
+    role: Optional[UserRole] = None
+    is_active: Optional[bool] = None
+    artist_bio: Optional[str] = None
+    artist_website: Optional[str] = None
 class Music(SQLModel, table=True):
     __tablename__ = "musics"
     

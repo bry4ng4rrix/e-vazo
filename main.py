@@ -14,8 +14,8 @@ from routers.auth import router as auth_router
 app = FastAPI()
 
 app.include_router(auth_router, prefix="/api", tags=["Authentification"])
-app.include_router(user_router, prefix="/api", tags=["Utilisateurs"])
-app.include_router(musique_router, prefix="/api", tags=["Musique"])
+app.include_router(user_router, prefix="/api/user", tags=["Utilisateurs"])
+app.include_router(musique_router, prefix="/api/musique", tags=["Musique"])
 
 
 @app.on_event("startup")
