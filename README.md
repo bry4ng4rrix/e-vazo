@@ -153,31 +153,6 @@ E-Vazo API/
 - 👤 Client uniquement  
 - 👑 Admin uniquement
 
-## 🔧 Configuration
-
-### Variables d'environnement `.env`
-
-```env
-# Base de données
-DATABASE_URL=sqlite:///./music_platform.db
-
-# Sécurité
-SECRET_KEY=your_super_secret_key_change_in_production
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-
-# Application
-DEBUG=True
-ENVIRONMENT=development
-
-# Upload
-MAX_FILE_SIZE=104857600  # 100MB
-ALLOWED_AUDIO_EXTENSIONS=.mp3,.wav,.flac,.m4a,.ogg
-ALLOWED_IMAGE_EXTENSIONS=.jpg,.jpeg,.png,.webp
-
-# Codes de paiement
-DEFAULT_CODE_EXPIRY_HOURS=24
-MAX_DOWNLOADS_PER_PURCHASE=5
-```
 
 ## 🎵 Utilisation
 
@@ -352,36 +327,6 @@ pytest --cov=app tests/
 pytest tests/test_auth.py -v
 ```
 
-## 🐳 Docker
-
-```bash
-# Développement
-docker-compose up -d
-
-# Production
-docker-compose -f docker-compose.prod.yml up -d
-
-# Build custom
-docker build -t e-vazo-api .
-docker run -p 8000:8000 e-vazo-api
-```
-
-## 🚀 Déploiement
-
-### Prérequis Production
-- PostgreSQL au lieu de SQLite
-- Variables d'environnement sécurisées
-- HTTPS avec certificats SSL
-- Monitoring (logs, métriques)
-
-### Configuration Production
-
-```env
-DATABASE_URL=postgresql://user:pass@host:5432/e_vazo
-SECRET_KEY=super_secure_key_64_characters_minimum
-DEBUG=False
-ENVIRONMENT=production
-```
 
 ## 🤝 Contribution
 
