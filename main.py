@@ -100,6 +100,8 @@ async def root():
     """Page d'accueil de l'API"""
     return {
         "message": "Bienvenue sur E-Vazo API",
+        "Codeur" : "Milson Fanoela Bryan",
+        "Pseudo Code" : "Garrix",
         "version": "1.0.0",
         "documentation": "/docs",
         "health_check": "/health",
