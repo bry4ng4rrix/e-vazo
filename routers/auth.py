@@ -14,7 +14,7 @@ SECRET_KEY = "bryangarrix"  # Change to a secure key in production
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # ===== MODÈLES POUR L'AUTH =====
@@ -220,7 +220,7 @@ async def register_user(user: UserCreate, session: Session = Depends(get_session
         updated_at=db_user.updated_at
     )
 
-@router.post("/token")
+@router.post("/login")
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(), 
     session: Session = Depends(get_session)
