@@ -411,9 +411,9 @@ ENVIRONMENT=production
 
 ## 📞 Support
 
-- 📧 Email: support@e-vazo.com
-- 🐛 Issues: [GitHub Issues](https://github.com/votre-username/e-vazo-api/issues)
-- 📖 Wiki: [Documentation Wiki](https://github.com/votre-username/e-vazo-api/wiki)
+- 📧 Email: bryanmfb4@gmail.com
+- 🐛 Issues: [GitHub Issues](https://github.com/bry4ng4rrix/e-vazo-api/issues)
+- 📖 Wiki: [Documentation Wiki](https://github.com/bry4ng4rrix/e-vazo-api/wiki)
 
 ## 📄 Licence
 
