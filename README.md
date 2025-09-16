@@ -357,6 +357,6 @@ pytest tests/test_auth.py -v
 ---
 
 <div align="center">
-  <p>Développé avec ❤️ pour la communauté musicale</p>
+  <p>Développé avec ❤️ pour la communauté musicale et mon ami J4DEN</p>
   <p><strong>E-Vazo API v1.0.0</strong></p>
 </div>
