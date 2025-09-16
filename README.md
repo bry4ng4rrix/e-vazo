@@ -354,16 +354,6 @@ pytest tests/test_auth.py -v
 - [Swagger UI](http://localhost:8000/docs)
 - [ReDoc](http://localhost:8000/redoc)
 
-## 📞 Support
-
-- 📧 Email: bryanmfb4@gmail.com
-- 🐛 Issues: [GitHub Issues](https://github.com/bry4ng4rrix/e-vazo-api/issues)
-- 📖 Wiki: [Documentation Wiki](https://github.com/bry4ng4rrix/e-vazo-api/wiki)
-
-## 📄 Licence
-
-Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
-
 ---
 
 <div align="center">
