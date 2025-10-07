@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -64,11 +66,11 @@ const Login = () => {
               <div className="space-y-6">
                 {/* Champ Email */}
                 <div className="space-y-2">
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-200">
+                  <Label htmlFor="email" className="block text-sm font-medium text-gray-200">
                     Email
-                  </label>
+                  </Label>
                   <div className="relative">
-                    <input
+                    <Input
                       id="email"
                       type="email"
                       value={email}
@@ -82,11 +84,11 @@ const Login = () => {
 
                 {/* Champ Mot de passe */}
                 <div className="space-y-2">
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-200">
+                  <Label htmlFor="password" className="block text-sm font-medium text-gray-200">
                     Mot de passe
-                  </label>
+                  </Label>
                   <div className="relative">
-                    <input
+                    <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
                       value={password}
@@ -116,17 +118,17 @@ const Login = () => {
 
                 {/* Options */}
                 <div className="flex items-center justify-between text-sm">
-                  <label className="flex items-center text-gray-300">
+                  <Label className="flex items-center text-gray-300">
                     <input type="checkbox" className="mr-2 rounded border-gray-300 focus:ring-cyan-400" />
                     Se souvenir de moi
-                  </label>
+                  </Label>
                   <a href="#" className="text-cyan-400 hover:text-cyan-300 transition-colors">
                     Mot de passe oublié ?
                   </a>
                 </div>
 
                 {/* Bouton de connexion */}
-                <button
+                <Button
                   type="submit"
                   disabled={isLoading}
                   className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-cyan-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
@@ -139,7 +141,7 @@ const Login = () => {
                   ) : (
                     'Se connecter'
                   )}
-                </button>
+                </Button>
 
                 {/* Séparateur */}
                 <div className="relative">
@@ -156,7 +158,7 @@ const Login = () => {
                 {/* Lien d'inscription */}
                 <p className="text-center text-gray-300">
                   Pas encore de compte ?{' '}
-                  <a href="#" className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors">
+                  <a href="/register" className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors">
                     Créer un compte
                   </a>
                 </p>
