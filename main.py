@@ -15,11 +15,21 @@ from datetime import datetime
 from typing import Dict, List, Any , Optional
 import platform
 from sqlmodel import SQLModel
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="E-Vazo API", 
     version="1.0.0", 
     description="API pour la plateforme de musique E-Vazo"
+)
+
+# Configuration CORS (Cross-Origin Resource Sharing)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permettre toutes les origines (à restreindre en production)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Inclusion des routers

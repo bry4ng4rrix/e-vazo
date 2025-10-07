@@ -9,3 +9,5 @@ instance/
 .DS_Store
 migrations/
 *.log
+
+node_modules/
