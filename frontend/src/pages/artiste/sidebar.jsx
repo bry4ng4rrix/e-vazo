@@ -1,19 +1,7 @@
 import React, { useState } from "react";
-import {
-  Home,
-  Users,
-  Star,
-  Workflow,
-  Bell,
-  Settings,
-  LogOut,
-  HelpCircle,
-  Search,
-  Sun,
-  Moon,
-} from "lucide-react";
+import {Home,Users,Star,Workflow,Bell,Settings,LogOut,Sun,Moon,} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Sidebar = () => {
@@ -27,19 +15,17 @@ const Sidebar = () => {
   };
 
   const menuItems = [
-    { label: "Overview", icon: <Home /> },
-    { label: "People", icon: <Users /> },
-    { label: "Favourites", icon: <Star /> },
-    { label: "Workflows", icon: <Workflow /> },
-    { label: "Updates", icon: <Bell /> },
-    { label: "Settings", icon: <Settings /> },
+    { label: "Acceuil",link : "artiste" , icon: <Home /> },
+    { label: "Profile",link : "artiste/profile" , icon: <Users /> },
+    { label: "Musiques",link : "artiste/musique" , icon: <Workflow /> },
+    { label: "Settings",link : "" , icon: <Settings /> },
   ];
 
   return (
     <TooltipProvider>
       <div
         className={`h-screen border-r bg-muted/40 flex flex-col transition-all duration-300 ${
-          isCollapsed ? "w-16" : "w-64"
+          isCollapsed ? "w-16" : "w-48"
         }`}
       >
         {/* HEADER */}
@@ -65,13 +51,13 @@ const Sidebar = () => {
           {menuItems.map((item, index) => (
             <Tooltip key={index}>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className={`${isCollapsed ? "text-4xl" : " "}  flex  items-center gap-3 p-3 justify-start w-full hover:bg-primary/10`}
+                <Link
+                  to={`/${item.link}`}
+                  className={`${isCollapsed ? "text-sm" : " "}  flex  items-center gap-3 p-3 justify-start w-full hover:bg-primary/10`}
                 >
                   {item.icon}
                   {!isCollapsed && <span>{item.label}</span>}
-                </Button>
+                </Link>
               </TooltipTrigger>
               <TooltipContent side="right">{item.label}</TooltipContent>
             </Tooltip>
@@ -80,22 +66,14 @@ const Sidebar = () => {
 
         {/* FOOTER */}
         <div className="p-3 border-t flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <Button variant="ghost" size="icon" onClick={toggleTheme}>
-              {theme === "light" ? <Moon /> : <Sun />}
-            </Button>
-            {!isCollapsed && <span className="text-sm">Switch Theme</span>}
-          </div>
+          
 
-          <Button variant="ghost" className="flex items-center gap-2 justify-start">
+          <Button variant="outline" className="flex items-center gap-2 justify-start">
             <LogOut className="h-5 w-5" />
             {!isCollapsed && <span>Déconnexion</span>}
           </Button>
 
-          <Button variant="ghost" className="flex items-center gap-2 justify-start">
-            <HelpCircle className="h-5 w-5" />
-            {!isCollapsed && <span>Aide</span>}
-          </Button>
+        
         </div>
       </div>
     </TooltipProvider>
@@ -103,3 +81,6 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+
+
+

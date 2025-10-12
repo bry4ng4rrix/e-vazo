@@ -26,8 +26,8 @@ const Navbar = () => {
 
 
   return (
-    <header className="w-full border-b bg-card shadow-md sticky top-0 z-50">
-      <div className=" mx-auto flex items-center justify-between">
+    <header className="w-full border-b bg-card shadow-md sticky px-2 top-0 z-50">
+      <div className="flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center space-x-2">
          
@@ -40,18 +40,19 @@ const Navbar = () => {
         {/* Actions: Theme switch + profile */}
         <div className="flex items-center">
           {/* Theme switch */}
-          <Button
+         
+
+          {/* Avatar */}
+          <Avatar>
+            <AvatarImage src="/logo.png" alt="Profil" />
+          </Avatar>
+           <Button
             variant="ghost"
             onClick={toggleTheme}
             className="p-2 rounded-full"
           >
             {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
           </Button>
-
-          {/* Avatar */}
-          <Avatar>
-            <AvatarImage src="/avatar.jpg" alt="Profil" />
-          </Avatar>
         </div>
       </div>
     </header>
