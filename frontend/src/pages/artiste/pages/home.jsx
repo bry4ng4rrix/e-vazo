@@ -26,6 +26,7 @@ const Home = () => {
               <div className="p-2 rounded-xl bg-muted-foreground/10 group-hover:bg-primary/10 transition-colors">
                 {item.icone}
               </div>
+            
             </CardHeader>
             <CardContent>
               <CardTitle className="text-lg font-semibold text-foreground">
