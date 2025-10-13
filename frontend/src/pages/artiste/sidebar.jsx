@@ -1,17 +1,34 @@
 import React, { useState } from "react";
 import {Home,Users,Star,Workflow,Bell,Settings,LogOut,Sun,Moon,} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [theme, setTheme] = useState("light");
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
     document.documentElement.classList.toggle("dark");
+  };
+
+  const handleLogout = () => {
+    // Remove the access token from localStorage
+    localStorage.removeItem('access_token');
+    
+    // Show success message
+    toast({
+      title: "Déconnexion réussie",
+      description: "Vous avez été déconnecté avec succès.",
+    });
+    
+    // Redirect to login page
+    navigate('/login');
   };
 
   const menuItems = [
@@ -40,6 +57,14 @@ const Sidebar = () => {
             onClick={() => setIsCollapsed(!isCollapsed)}
           >
             {isCollapsed ? "→" : "←"}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full h-10 w-10"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-5 w-5" />
           </Button>
         </div>
 

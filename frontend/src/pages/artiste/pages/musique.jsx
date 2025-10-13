@@ -8,6 +8,7 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogTrigger,
@@ -27,12 +28,24 @@ import {
   Headphones,
   Music,
 } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
+import { useToast } from "@/hooks/use-toast"
+import { Loader2 } from "lucide-react"
 
 const Musique = () => {
   const [musiques, setMusiques] = useState([])
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { toast } = useToast()
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [open, setOpen] = useState(false)
@@ -40,9 +53,11 @@ const Musique = () => {
     title: "",
     description: "",
     genre: "",
-    duration: 0,
+    duration: "",
     file_path: "",
+    audio_file: null,
     cover_image_path: "",
+    cover_file: null,
     is_free: true,
     price: "",
     status: "draft",
@@ -50,7 +65,7 @@ const Musique = () => {
 
   const token = localStorage.getItem("access_token")
 
-  // 🟢 Récupération des musiques
+  // Récupération des musiques
   useEffect(() => {
     const fetchMusiques = async () => {
       try {
@@ -77,45 +92,104 @@ const Musique = () => {
     fetchMusiques()
   }, [token])
 
-  // 🔍 Filtrer les musiques
+  // Filtrer les musiques
   const filteredMusiques = musiques.filter((musique) =>
     musique.title?.toLowerCase().includes(search.toLowerCase())
   )
 
-  // 🟣 Ajouter une nouvelle musique (POST)
-  const handleAddMusique = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    
+    const token = localStorage.getItem('access_token')
+    if (!token) {
+      toast({
+        variant: "destructive",
+        title: "Erreur d'authentification",
+        description: "Veuillez vous reconnecter.",
+      })
+      return
+    }
+
+    // Validate required fields
+    if (!newMusique.title || !newMusique.genre || !newMusique.status || !newMusique.audio_file) {
+      toast({
+        variant: "destructive",
+        title: "Champs manquants",
+        description: "Veuillez remplir tous les champs obligatoires et sélectionner un fichier audio.",
+      })
+      return
+    }
+
+    const formData = new FormData()
+    
+    // Add form fields to FormData
+    formData.append('title', newMusique.title)
+    formData.append('description', newMusique.description || '')
+    formData.append('genre', newMusique.genre)
+    formData.append('is_free', newMusique.is_free ? 'true' : 'false')
+    formData.append('price', newMusique.price || '0')
+    formData.append('status', newMusique.status)
+    
+    // Add audio file
+    formData.append('audio_file', newMusique.audio_file)
+    
+    // Add cover image if selected
+    if (newMusique.cover_file) {
+      formData.append('cover_image', newMusique.cover_file)
+    }
+
+    setIsSubmitting(true)
+
     try {
-      const response = await fetch("http://localhost:8000/api/artiste/musiques", {
-        method: "POST",
+      const response = await fetch('http://localhost:8000/api/artiste/musiques', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
+          // Don't set Content-Type header, let the browser set it with the correct boundary
         },
-        body: JSON.stringify(newMusique),
+        body: formData,
       })
 
       if (!response.ok) {
-        throw new Error("Erreur lors de l'ajout de la musique")
+        const errorData = await response.json()
+        throw new Error(errorData.detail || 'Erreur lors de l\'ajout de la musique')
       }
 
-      const created = await response.json()
-      setMusiques((prev) => [...prev, created])
-      toast.success("🎵 Musique ajoutée avec succès !")
-      setOpen(false)
+      const data = await response.json()
+
+      // Add the new music to the list
+      setMusiques([data, ...musiques])
+      
+      // Show success message
+      toast({
+        title: "Succès",
+        description: "La musique a été ajoutée avec succès.",
+      })
+
+      // Reset form and close modal
       setNewMusique({
         title: "",
         description: "",
         genre: "",
-        duration: 0,
+        duration: "",
         file_path: "",
+        audio_file: null,
         cover_image_path: "",
+        cover_file: null,
         is_free: true,
         price: "",
         status: "draft",
       })
+      setOpen(false)
     } catch (error) {
-      console.error(error)
-      toast.error("Erreur lors de l'ajout de la musique ❌")
+      console.error('Error uploading music:', error)
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: error.message || "Une erreur est survenue lors de l'ajout de la musique.",
+      })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -159,109 +233,179 @@ const Musique = () => {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="grid gap-3 py-2">
-              <div>
-                <Label>Titre</Label>
-                <Input
-                  value={newMusique.title}
-                  onChange={(e) =>
-                    setNewMusique({ ...newMusique, title: e.target.value })
-                  }
-                  placeholder="Ex: Ma chanson préférée"
-                />
-              </div>
-
-              <div>
-                <Label>Description</Label>
-                <Textarea
-                  value={newMusique.description}
-                  onChange={(e) =>
-                    setNewMusique({ ...newMusique, description: e.target.value })
-                  }
-                  placeholder="Décris ta musique..."
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid gap-4">
                 <div>
-                  <Label>Genre</Label>
+                  <Label htmlFor="title">Titre *</Label>
                   <Input
-                    value={newMusique.genre}
+                    id="title"
+                    value={newMusique.title}
                     onChange={(e) =>
-                      setNewMusique({ ...newMusique, genre: e.target.value })
+                      setNewMusique({ ...newMusique, title: e.target.value })
                     }
-                    placeholder="Rap, Jazz, Pop..."
+                    placeholder="Ex: Ma chanson préférée"
+                    required
                   />
                 </div>
+
                 <div>
-                  <Label>Durée (secondes)</Label>
-                  <Input
-                    type="number"
-                    value={newMusique.duration}
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={newMusique.description}
                     onChange={(e) =>
-                      setNewMusique({
-                        ...newMusique,
-                        duration: parseInt(e.target.value) || 0,
-                      })
+                      setNewMusique({ ...newMusique, description: e.target.value })
                     }
+                    placeholder="Décrivez votre musique..."
+                    rows={3}
                   />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="genre">Genre *</Label>
+                    <Input
+                      id="genre"
+                      value={newMusique.genre}
+                      onChange={(e) =>
+                        setNewMusique({ ...newMusique, genre: e.target.value })
+                      }
+                      placeholder="Ex: Pop, Rock, Hip-Hop"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="status">Statut *</Label>
+                    <Select
+                      value={newMusique.status}
+                      onValueChange={(value) =>
+                        setNewMusique({ ...newMusique, status: value })
+                      }
+                    >
+                      <SelectTrigger id="status">
+                        <SelectValue placeholder="Sélectionner un statut" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="draft">Brouillon</SelectItem>
+                        <SelectItem value="published">Publié</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="is_free">Gratuit ?</Label>
+                    <div className="flex items-center space-x-2">
+                      <input
+                        id="is_free"
+                        type="checkbox"
+                        checked={newMusique.is_free}
+                        onChange={(e) =>
+                          setNewMusique({ ...newMusique, is_free: e.target.checked })
+                        }
+                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                      />
+                      <Label htmlFor="is_free" className="!m-0">
+                        Cette musique est gratuite
+                      </Label>
+                    </div>
+                  </div>
+
+                  {!newMusique.is_free && (
+                    <div>
+                      <Label htmlFor="price">Prix (€)</Label>
+                      <Input
+                        id="price"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={newMusique.price}
+                        onChange={(e) =>
+                          setNewMusique({ ...newMusique, price: e.target.value })
+                        }
+                        placeholder="0.00"
+                        disabled={newMusique.is_free}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="audio_file">Fichier audio *</Label>
+                  <Input
+                    id="audio_file"
+                    type="file"
+                    accept=".mp3,.wav,.flac,.m4a,.ogg"
+                    onChange={(e) => {
+                      const file = e.target.files[0]
+                      if (file) {
+                        setNewMusique({
+                          ...newMusique,
+                          file_path: file.name,
+                          audio_file: file
+                        })
+                      }
+                    }}
+                    required
+                  />
+                  {newMusique.file_path && (
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Fichier sélectionné : {newMusique.file_path}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="cover_image">Image de couverture</Label>
+                  <Input
+                    id="cover_image"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files[0]
+                      if (file) {
+                        setNewMusique({
+                          ...newMusique,
+                          cover_image_path: file.name,
+                          cover_file: file
+                        })
+                      }
+                    }}
+                  />
+                  {newMusique.cover_image_path && (
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Image sélectionnée : {newMusique.cover_image_path}
+                    </p>
+                  )}
                 </div>
               </div>
 
-              <div>
-                <Label>Fichier musique (URL)</Label>
-                <Input
-                  value={newMusique.file_path}
-                  onChange={(e) =>
-                    setNewMusique({ ...newMusique, file_path: e.target.value })
-                  }
-                  placeholder="Lien du fichier audio"
-                />
-              </div>
-
-              <div>
-                <Label>Image de couverture (URL)</Label>
-                <Input
-                  value={newMusique.cover_image_path}
-                  onChange={(e) =>
-                    setNewMusique({
-                      ...newMusique,
-                      cover_image_path: e.target.value,
-                    })
-                  }
-                  placeholder="Lien de l’image"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label>Prix (laisser vide si gratuit)</Label>
-                  <Input
-                    value={newMusique.price}
-                    onChange={(e) =>
-                      setNewMusique({ ...newMusique, price: e.target.value })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label>Status</Label>
-                  <Input
-                    value={newMusique.status}
-                    onChange={(e) =>
-                      setNewMusique({ ...newMusique, status: e.target.value })
-                    }
-                    placeholder="draft / published"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setOpen(false)}>
-                Annuler
-              </Button>
-              <Button onClick={handleAddMusique}>Enregistrer</Button>
-            </DialogFooter>
+              <DialogFooter className="mt-6">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setOpen(false)}
+                  disabled={isSubmitting}
+                >
+                  Annuler
+                </Button>
+                <Button 
+                  type="submit"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Envoi en cours...
+                    </>
+                  ) : (
+                    'Enregistrer la musique'
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
           </DialogContent>
         </Dialog>
       </div>
@@ -283,9 +427,9 @@ const Musique = () => {
                   <CardTitle className="text-lg font-semibold text-foreground">
                     {musique.title || "Titre inconnu"}
                   </CardTitle>
-                  <span className="text-sm text-muted-foreground">
+                  <Badge className="">
                     {musique.genre || "Genre inconnu"}
-                  </span>
+                  </Badge>
                 </div>
               </CardHeader>
 

@@ -26,10 +26,10 @@ const Profile = () => {
 
         const data = await response.json()
         setUser(data)
-        toast.success("Profil chargé avec succès 🎵")
+       
       } catch (error) {
         console.error(error)
-        toast.error("Impossible de récupérer les informations du profil ❌")
+       
       } finally {
         setLoading(false)
       }
