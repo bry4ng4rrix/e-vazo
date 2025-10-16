@@ -1,62 +1,35 @@
-"use client"
-
-import React, { useState } from "react"
-
-import {Link} from "react-router-dom" // ou "next/link" si tu es sur Next.js
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu"
+import React from 'react'
+import { Card } from '@/components/ui/card'
+import { Navbar01 } from '@/components/ui/shadcn-io/navbar-01';
+import { Button } from '@/components/ui/button';
 import { Sun, Moon } from "lucide-react"
-import { Avatar, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-
-const Navbar = () => {
+import { Link } from 'react-router-dom';
+const navbar = () => {
   const [theme, setTheme] = React.useState("light")
-
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light")
-    document.documentElement.classList.toggle("dark")
-  }
-
-
+  
+    const toggleTheme = () => {
+      setTheme(theme === "light" ? "dark" : "light")
+      document.documentElement.classList.toggle("dark")
+    }
+  
   return (
-    <header className="w-full border-b bg-card shadow-md sticky px-2 top-0 z-50">
-      <div className="flex items-center justify-between">
-        {/* Logo */}
-        <div className="flex items-center space-x-2">
-         
-          <span className="font-bold text-lg">E vazo</span>
-        </div>
-
-        {/* Navigation Menu */}
-       
-
-        {/* Actions: Theme switch + profile */}
-        <div className="flex items-center">
-          {/* Theme switch */}
-         
-
-          {/* Avatar */}
-          <Avatar>
-            <AvatarImage src="/logo.png" alt="Profil" />
-          </Avatar>
-           <Button
+    <Card className="sticky m-2 z-50 p-2 flex items-ceenter justify-between">
+      <div className='justify-center items-center flex'>
+        E-vazo
+      </div>
+      <div className='justify-center items-center flex gap-2'>
+         <Button
             variant="ghost"
             onClick={toggleTheme}
             className="p-2 rounded-full"
           >
             {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
           </Button>
-        </div>
+          <Link to="/login" className="bg-green-500 p-2 rounded">Login</Link>
       </div>
-    </header>
+  
+  </Card>
   )
 }
 
-export default Navbar
+export default navbar

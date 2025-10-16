@@ -17,21 +17,21 @@ const data = [
     icon: (
       <HomeIcon className='h-full w-full text-sky-600 dark:text-sky-300' />
     ),
-    href: '#',
+    href: '/artiste',
   },
   {
     title: 'Musiques',
     icon: (
       <Package className='h-full w-full text-green-500 dark:text-green-300' />
     ),
-    href: '#',
+    href: 'musique',
   },
   {
     title: 'Profile',
     icon: (
       <Component className='h-full w-full text-neutral-600 dark:text-neutral-300' />
     ),
-    href: '#',
+    href: 'profile',
   },
   {
     title: 'Activity',
