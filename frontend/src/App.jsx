@@ -7,6 +7,7 @@ import Artiste from './pages/artiste/layout'
 import Aprofile from './pages/artiste/pages/profile'
 import Amusique from './pages/artiste/pages/musique'
 import Ahome from './pages/artiste/pages/home'
+import Chome from './pages/client/client'
 
 import {Button} from '@/components/ui/button'
 const App = () => {
@@ -28,6 +29,9 @@ const App = () => {
 
 
     </Route>
+
+
+    <Route path='/client' element={<Chome/>} />
    </Routes>
    
    </BrowserRouter>
