@@ -1,6 +1,5 @@
 import React from 'react'
 import { Card } from '@/components/ui/card'
-import { Navbar01 } from '@/components/ui/shadcn-io/navbar-01';
 import { Button } from '@/components/ui/button';
 import { Sun, Moon } from "lucide-react"
 const navbar = () => {

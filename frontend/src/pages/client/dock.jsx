@@ -17,28 +17,28 @@ const data = [
     icon: (
       <HomeIcon className='h-full w-full text-sky-600 dark:text-sky-300' />
     ),
-    href: '#',
+    href: '',
   },
   {
     title: 'Musiques',
     icon: (
       <Package className='h-full w-full text-green-500 dark:text-green-300' />
     ),
-    href: '#',
+    href: 'download',
   },
   {
     title: 'Profile',
     icon: (
       <Component className='h-full w-full text-neutral-600 dark:text-neutral-300' />
     ),
-    href: '#',
+    href: 'profile',
   },
   {
-    title: 'Activity',
+    title: 'Favorites',
     icon: (
       <Activity className='h-full w-full text-neutral-600 dark:text-neutral-300' />
     ),
-    href: '#',
+    href: 'favorite',
   },
   {
     title: 'Change Log',
