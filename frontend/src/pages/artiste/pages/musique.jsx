@@ -1,14 +1,8 @@
-import React, { useEffect, useState } from "react"
+"use client"
+
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogTrigger,
@@ -19,31 +13,14 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import {
-  Search,
-  Plus,
-  Trash,
-  Edit,
-  Download,
-  Headphones,
-  Music,
-} from "lucide-react"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Search, Plus, Music2, Play, MoreVertical } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { toast, ToastContainer } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
 
-const Musique = () => {
+export default function Musique() {
   const [musiques, setMusiques] = useState([])
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
   const [loading, setLoading] = useState(true)
@@ -63,9 +40,8 @@ const Musique = () => {
     status: "draft",
   })
 
-  const token = localStorage.getItem("access_token")
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null
 
-  // Récupération des musiques
   useEffect(() => {
     const fetchMusiques = async () => {
       try {
@@ -83,24 +59,25 @@ const Musique = () => {
         setMusiques(data)
       } catch (error) {
         console.error(error)
-        toast.error("Impossible de charger les musiques 😢")
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible de charger les musiques",
+        })
       } finally {
         setLoading(false)
       }
     }
 
     fetchMusiques()
-  }, [token])
+  }, [token, toast])
 
-  // Filtrer les musiques
-  const filteredMusiques = musiques.filter((musique) =>
-    musique.title?.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredMusiques = musiques.filter((musique) => musique.title?.toLowerCase().includes(search.toLowerCase()))
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
-    const token = localStorage.getItem('access_token')
+
+    const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null
     if (!token) {
       toast({
         variant: "destructive",
@@ -110,7 +87,6 @@ const Musique = () => {
       return
     }
 
-    // Validate required fields
     if (!newMusique.title || !newMusique.genre || !newMusique.status || !newMusique.audio_file) {
       toast({
         variant: "destructive",
@@ -121,52 +97,44 @@ const Musique = () => {
     }
 
     const formData = new FormData()
-    
-    // Add form fields to FormData
-    formData.append('title', newMusique.title)
-    formData.append('description', newMusique.description || '')
-    formData.append('genre', newMusique.genre)
-    formData.append('is_free', newMusique.is_free ? 'true' : 'false')
-    formData.append('price', newMusique.price || '0')
-    formData.append('status', newMusique.status)
-    
-    // Add audio file
-    formData.append('audio_file', newMusique.audio_file)
-    
-    // Add cover image if selected
+
+    formData.append("title", newMusique.title)
+    formData.append("description", newMusique.description || "")
+    formData.append("genre", newMusique.genre)
+    formData.append("is_free", newMusique.is_free ? "true" : "false")
+    formData.append("price", newMusique.price || "0")
+    formData.append("status", newMusique.status)
+    formData.append("audio_file", newMusique.audio_file)
+
     if (newMusique.cover_file) {
-      formData.append('cover_image', newMusique.cover_file)
+      formData.append("cover_image", newMusique.cover_file)
     }
 
     setIsSubmitting(true)
 
     try {
-      const response = await fetch('http://localhost:8000/api/artiste/musiques', {
-        method: 'POST',
+      const response = await fetch("http://localhost:8000/api/artiste/musiques", {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          // Don't set Content-Type header, let the browser set it with the correct boundary
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       })
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.detail || 'Erreur lors de l\'ajout de la musique')
+        throw new Error(errorData.detail || "Erreur lors de l'ajout de la musique")
       }
 
       const data = await response.json()
 
-      // Add the new music to the list
       setMusiques([data, ...musiques])
-      
-      // Show success message
+
       toast({
         title: "Succès",
         description: "La musique a été ajoutée avec succès.",
       })
 
-      // Reset form and close modal
       setNewMusique({
         title: "",
         description: "",
@@ -182,7 +150,7 @@ const Musique = () => {
       })
       setOpen(false)
     } catch (error) {
-      console.error('Error uploading music:', error)
+      console.error("Error uploading music:", error)
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -194,298 +162,295 @@ const Musique = () => {
   }
 
   return (
-    <div className="space-y-6 m-4">
-      {/* React Toastify Container */}
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnHover
-        draggable
-        theme="colored"
-      />
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b border-border bg-card">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-serif font-light tracking-tight text-foreground">Ma Collection</h1>
+              <p className="text-sm text-muted-foreground mt-1">Gérez votre bibliothèque musicale</p>
+            </div>
 
-      {/* Barre de recherche + bouton modal */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div className="flex items-center w-full sm:w-1/3 border rounded-lg px-3 py-2 bg-muted/40">
-          <Search className="text-muted-foreground mr-2" />
-          <Input
-            placeholder="Rechercher une musique..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="border-none bg-transparent focus-visible:ring-0"
-          />
-        </div>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 rounded-full px-6">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nouvelle musique
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-xl">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-light">Ajouter une musique</DialogTitle>
+                  <DialogDescription>Complétez les informations pour publier votre création</DialogDescription>
+                </DialogHeader>
 
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2 bg-primary text-primary-foreground m-5 hover:bg-primary/80">
-              <Plus className="w-4 h-4" /> Ajouter une musique
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Ajouter une nouvelle musique</DialogTitle>
-              <DialogDescription>
-                Remplis les champs ci-dessous pour publier une nouvelle musique.
-              </DialogDescription>
-            </DialogHeader>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid gap-4">
-                <div>
-                  <Label htmlFor="title">Titre *</Label>
-                  <Input
-                    id="title"
-                    value={newMusique.title}
-                    onChange={(e) =>
-                      setNewMusique({ ...newMusique, title: e.target.value })
-                    }
-                    placeholder="Ex: Ma chanson préférée"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={newMusique.description}
-                    onChange={(e) =>
-                      setNewMusique({ ...newMusique, description: e.target.value })
-                    }
-                    placeholder="Décrivez votre musique..."
-                    rows={3}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="genre">Genre *</Label>
+                <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="title" className="text-sm font-medium">
+                      Titre *
+                    </Label>
                     <Input
-                      id="genre"
-                      value={newMusique.genre}
-                      onChange={(e) =>
-                        setNewMusique({ ...newMusique, genre: e.target.value })
-                      }
-                      placeholder="Ex: Pop, Rock, Hip-Hop"
+                      id="title"
+                      value={newMusique.title}
+                      onChange={(e) => setNewMusique({ ...newMusique, title: e.target.value })}
+                      placeholder="Nom de votre musique"
                       required
+                      className="h-11"
                     />
                   </div>
-                  
-                  <div>
-                    <Label htmlFor="status">Statut *</Label>
-                    <Select
-                      value={newMusique.status}
-                      onValueChange={(value) =>
-                        setNewMusique({ ...newMusique, status: value })
-                      }
-                    >
-                      <SelectTrigger id="status">
-                        <SelectValue placeholder="Sélectionner un statut" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="draft">Brouillon</SelectItem>
-                        <SelectItem value="published">Publié</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="is_free">Gratuit ?</Label>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        id="is_free"
-                        type="checkbox"
-                        checked={newMusique.is_free}
-                        onChange={(e) =>
-                          setNewMusique({ ...newMusique, is_free: e.target.checked })
-                        }
-                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                      />
-                      <Label htmlFor="is_free" className="!m-0">
-                        Cette musique est gratuite
+                    <Label htmlFor="description" className="text-sm font-medium">
+                      Description
+                    </Label>
+                    <Textarea
+                      id="description"
+                      value={newMusique.description}
+                      onChange={(e) => setNewMusique({ ...newMusique, description: e.target.value })}
+                      placeholder="Décrivez votre création..."
+                      rows={3}
+                      className="resize-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="genre" className="text-sm font-medium">
+                        Genre *
                       </Label>
+                      <Input
+                        id="genre"
+                        value={newMusique.genre}
+                        onChange={(e) => setNewMusique({ ...newMusique, genre: e.target.value })}
+                        placeholder="Ex: Jazz, Rock"
+                        required
+                        className="h-11"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="status" className="text-sm font-medium">
+                        Statut *
+                      </Label>
+                      <Select
+                        value={newMusique.status}
+                        onValueChange={(value) => setNewMusique({ ...newMusique, status: value })}
+                      >
+                        <SelectTrigger id="status" className="h-11">
+                          <SelectValue placeholder="Sélectionner" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="draft">Brouillon</SelectItem>
+                          <SelectItem value="published">Publié</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
 
+                  <div className="flex items-center space-x-3 py-2">
+                    <input
+                      id="is_free"
+                      type="checkbox"
+                      checked={newMusique.is_free}
+                      onChange={(e) => setNewMusique({ ...newMusique, is_free: e.target.checked })}
+                      className="h-4 w-4 rounded border-input text-foreground focus:ring-ring"
+                    />
+                    <Label htmlFor="is_free" className="!m-0 text-sm font-normal cursor-pointer">
+                      Musique gratuite
+                    </Label>
+                  </div>
+
                   {!newMusique.is_free && (
-                    <div>
-                      <Label htmlFor="price">Prix (€)</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="price" className="text-sm font-medium">
+                        Prix (€)
+                      </Label>
                       <Input
                         id="price"
                         type="number"
                         min="0"
                         step="0.01"
                         value={newMusique.price}
-                        onChange={(e) =>
-                          setNewMusique({ ...newMusique, price: e.target.value })
-                        }
+                        onChange={(e) => setNewMusique({ ...newMusique, price: e.target.value })}
                         placeholder="0.00"
-                        disabled={newMusique.is_free}
+                        className="h-11"
                       />
                     </div>
                   )}
-                </div>
 
-                <div>
-                  <Label htmlFor="audio_file">Fichier audio *</Label>
-                  <Input
-                    id="audio_file"
-                    type="file"
-                    accept=".mp3,.wav,.flac,.m4a,.ogg"
-                    onChange={(e) => {
-                      const file = e.target.files[0]
-                      if (file) {
-                        setNewMusique({
-                          ...newMusique,
-                          file_path: file.name,
-                          audio_file: file
-                        })
-                      }
-                    }}
-                    required
-                  />
-                  {newMusique.file_path && (
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Fichier sélectionné : {newMusique.file_path}
-                    </p>
-                  )}
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="audio_file" className="text-sm font-medium">
+                      Fichier audio *
+                    </Label>
+                    <Input
+                      id="audio_file"
+                      type="file"
+                      accept=".mp3,.wav,.flac,.m4a,.ogg"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          setNewMusique({
+                            ...newMusique,
+                            file_path: file.name,
+                            audio_file: file,
+                          })
+                        }
+                      }}
+                      required
+                      className="h-11"
+                    />
+                    {newMusique.file_path && <p className="text-xs text-muted-foreground">{newMusique.file_path}</p>}
+                  </div>
 
-                <div>
-                  <Label htmlFor="cover_image">Image de couverture</Label>
-                  <Input
-                    id="cover_image"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files[0]
-                      if (file) {
-                        setNewMusique({
-                          ...newMusique,
-                          cover_image_path: file.name,
-                          cover_file: file
-                        })
-                      }
-                    }}
-                  />
-                  {newMusique.cover_image_path && (
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Image sélectionnée : {newMusique.cover_image_path}
-                    </p>
-                  )}
-                </div>
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cover_image" className="text-sm font-medium">
+                      Image de couverture
+                    </Label>
+                    <Input
+                      id="cover_image"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          setNewMusique({
+                            ...newMusique,
+                            cover_image_path: file.name,
+                            cover_file: file,
+                          })
+                        }
+                      }}
+                      className="h-11"
+                    />
+                    {newMusique.cover_image_path && (
+                      <p className="text-xs text-muted-foreground">{newMusique.cover_image_path}</p>
+                    )}
+                  </div>
 
-              <DialogFooter className="mt-6">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setOpen(false)}
-                  disabled={isSubmitting}
-                >
-                  Annuler
-                </Button>
-                <Button 
-                  type="submit"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Envoi en cours...
-                    </>
-                  ) : (
-                    'Enregistrer la musique'
-                  )}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+                  <DialogFooter className="gap-2 pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setOpen(false)}
+                      disabled={isSubmitting}
+                      className="rounded-full"
+                    >
+                      Annuler
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="bg-foreground text-background hover:bg-foreground/90 rounded-full"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Envoi...
+                        </>
+                      ) : (
+                        "Enregistrer"
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
 
-      {/* Liste des musiques */}
-      <main className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {/* Search Bar */}
+          <div className="mt-8 max-w-md">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10 h-11 bg-background border-border"
+              />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Music Grid */}
+      <main className="max-w-7xl mx-auto px-6 py-12">
         {loading ? (
-          <div className="col-span-full text-center text-muted-foreground">
-            Chargement des musiques...
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
           </div>
         ) : filteredMusiques.length > 0 ? (
-          filteredMusiques.map((musique, index) => (
-            <Card
-              key={index}
-              className="transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border border-muted/60 bg-gradient-to-br from-muted/40 to-background rounded-2xl"
-            >
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-lg font-semibold text-foreground">
-                    {musique.title || "Titre inconnu"}
-                  </CardTitle>
-                  <Badge className="">
-                    {musique.genre || "Genre inconnu"}
-                  </Badge>
-                </div>
-              </CardHeader>
-
-              <CardContent className="space-y-3">
-                <div className="bg-muted rounded-xl h-40 flex justify-center items-center overflow-hidden">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredMusiques.map((musique, index) => (
+              <div
+                key={index}
+                className="group relative bg-card border border-border rounded-lg overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1"
+              >
+                {/* Cover Image */}
+                <div className="aspect-square bg-muted relative overflow-hidden">
                   {musique.cover_image_path ? (
                     <img
-                      src={musique.cover_image_path}
+                      src={musique.cover_image_path || "/placeholder.svg"}
                       alt={musique.title}
-                      className="object-cover h-full w-full rounded-xl"
+                      className="object-cover w-full h-full"
                     />
                   ) : (
-                    <Music className="w-12 h-12 text-muted-foreground" />
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Music2 className="w-16 h-16 text-muted-foreground/30" />
+                    </div>
                   )}
-                </div>
 
-                <div className="text-sm text-muted-foreground">
-                  Créé le :{" "}
-                  <span className="text-foreground font-medium">
-                    {musique.created_at
-                      ? new Date(musique.created_at).toLocaleDateString()
-                      : "N/A"}
-                  </span>
-                </div>
-              </CardContent>
-
-              <CardFooter className="flex justify-between items-center">
-                <div className="flex space-x-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Headphones className="w-4 h-4" /> {musique.play_count || 0}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Download className="w-4 h-4" />{" "}
-                    {musique.download_count || 0}
+                  {/* Play Button Overlay */}
+                  <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/60 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <Button
+                      size="icon"
+                      className="w-14 h-14 rounded-full bg-background text-foreground hover:bg-background/90"
+                    >
+                      <Play className="w-6 h-6 ml-1" />
+                    </Button>
                   </div>
                 </div>
 
-                <div className="flex space-x-1">
-                  <Button variant="ghost" size="icon" className="hover:text-sky-600">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="hover:text-red-600">
-                    <Trash className="w-4 h-4" />
-                  </Button>
+                {/* Info */}
+                <div className="p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-foreground truncate text-balance">
+                        {musique.title || "Sans titre"}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-0.5">{musique.genre || "Genre inconnu"}</p>
+                    </div>
+
+                    <Button variant="ghost" size="icon" className="h-8 w-8 -mr-2 shrink-0">
+                      <MoreVertical className="w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center gap-4 mt-4 pt-4 border-t border-border text-xs text-muted-foreground">
+                    <span>{musique.play_count || 0} écoutes</span>
+                    <span>•</span>
+                    <span>
+                      {musique.created_at
+                        ? new Date(musique.created_at).toLocaleDateString("fr-FR", {
+                            day: "numeric",
+                            month: "short",
+                          })
+                        : "N/A"}
+                    </span>
+                  </div>
                 </div>
-              </CardFooter>
-            </Card>
-          ))
+              </div>
+            ))}
+          </div>
         ) : (
-          <div className="col-span-full text-center text-muted-foreground">
-            Aucune musique trouvée.
+          <div className="flex flex-col items-center justify-center py-20">
+            <Music2 className="w-16 h-16 text-muted-foreground/30 mb-4" />
+            <p className="text-muted-foreground text-center">
+              {search ? "Aucune musique trouvée" : "Aucune musique dans votre collection"}
+            </p>
           </div>
         )}
       </main>
     </div>
   )
 }
-
-export default Musique

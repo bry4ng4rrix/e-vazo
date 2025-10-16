@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from "react"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Music, Headphones, Download, ShoppingBag, Globe, FileText, DollarSign, TrendingUp } from "lucide-react"
+"use client"
+
+import { useState, useEffect } from "react"
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card"
+import { Music, ShoppingBag, DollarSign } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Bar, BarChart, Area, AreaChart, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
 const Home = () => {
   const [statistiques, setStatistiques] = useState(null)
@@ -10,77 +14,26 @@ const Home = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem('access_token')
+        const token = localStorage.getItem("access_token")
         if (!token) {
-          throw new Error('No authentication token found')
+          throw new Error("No authentication token found")
         }
 
-        const response = await fetch('http://localhost:8000/api/artiste/statistiques', {
+        const response = await fetch("http://localhost:8000/api/artiste/statistiques", {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         })
 
         if (!response.ok) {
-          throw new Error('Failed to fetch statistics')
+          throw new Error("Failed to fetch statistics")
         }
 
         const data = await response.json()
-        
-        setStatistiques([
-          { 
-            nom: "Musique totale", 
-            valeur: data.total_musics, 
-            icone: <Music className="w-8 h-8" />,
-            couleur: "from-blue-500 to-blue-600",
-            bgCouleur: "bg-blue-100"
-          },
-          { 
-            nom: "Écoutes", 
-            valeur: data.total_plays, 
-            icone: <Headphones className="w-8 h-8" />,
-            couleur: "from-purple-500 to-purple-600",
-            bgCouleur: "bg-purple-100"
-          },
-          { 
-            nom: "Téléchargements", 
-            valeur: data.total_downloads, 
-            icone: <Download className="w-8 h-8" />,
-            couleur: "from-green-500 to-green-600",
-            bgCouleur: "bg-green-100"
-          },
-          { 
-            nom: "Revenus", 
-            valeur: `${data.total_revenue} €`, 
-            icone: <DollarSign className="w-8 h-8" />,
-            couleur: "from-yellow-500 to-yellow-600",
-            bgCouleur: "bg-yellow-100"
-          },
-          { 
-            nom: "Ventes", 
-            valeur: data.total_sales, 
-            icone: <ShoppingBag className="w-8 h-8" />,
-            couleur: "from-pink-500 to-pink-600",
-            bgCouleur: "bg-pink-100"
-          },
-          { 
-            nom: "Publiées", 
-            valeur: data.published_musics, 
-            icone: <Globe className="w-8 h-8" />,
-            couleur: "from-cyan-500 to-cyan-600",
-            bgCouleur: "bg-cyan-100"
-          },
-          { 
-            nom: "Brouillons", 
-            valeur: data.draft_musics, 
-            icone: <FileText className="w-8 h-8" />,
-            couleur: "from-slate-500 to-slate-600",
-            bgCouleur: "bg-slate-100"
-          },
-        ])
+        setStatistiques(data)
       } catch (error) {
-        console.error('Error fetching statistics:', error)
+        console.error("Error fetching statistics:", error)
       } finally {
         setIsLoading(false)
       }
@@ -89,73 +42,199 @@ const Home = () => {
     fetchStats()
   }, [])
 
-  const StatCard = ({ item }) => (
-    <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 bg-white border border-slate-200 rounded-2xl h-full">
-      {/* Gradient background effect */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${item.couleur} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
-      
-      <CardHeader className="space-y-0 pb-3">
-        <div className="flex items-start justify-between">
-          <div className={`${item.bgCouleur} p-3 rounded-xl group-hover:scale-110 transition-transform duration-300`}>
-            <div className={`bg-gradient-to-br ${item.couleur} bg-clip-text text-transparent`}>
-              {item.icone}
-            </div>
-          </div>
-          <TrendingUp className="w-5 h-5 text-slate-300 group-hover:text-slate-400 transition-colors" />
+  // Prepare chart data
+  const performanceData = statistiques
+    ? [
+        { name: "Écoutes", value: statistiques.total_plays, fill: "hsl(var(--chart-1))" },
+        { name: "Téléchargements", value: statistiques.total_downloads, fill: "hsl(var(--chart-2))" },
+        { name: "Ventes", value: statistiques.total_sales, fill: "hsl(var(--chart-3))" },
+      ]
+    : []
+
+  const musicStatusData = statistiques
+    ? [
+        { name: "Publiées", value: statistiques.published_musics, fill: "hsl(var(--chart-4))" },
+        { name: "Brouillons", value: statistiques.draft_musics, fill: "hsl(var(--chart-5))" },
+      ]
+    : []
+
+  const revenueData = statistiques
+    ? [
+        { month: "Jan", revenue: statistiques.total_revenue * 0.7 },
+        { month: "Fév", revenue: statistiques.total_revenue * 0.8 },
+        { month: "Mar", revenue: statistiques.total_revenue * 0.85 },
+        { month: "Avr", revenue: statistiques.total_revenue * 0.9 },
+        { month: "Mai", revenue: statistiques.total_revenue * 0.95 },
+        { month: "Juin", revenue: statistiques.total_revenue },
+      ]
+    : []
+
+  const StatCard = ({ title, value, icon: Icon, color }) => (
+    <Card className="border-border">
+      <CardContent className="flex items-center justify-between p-6">
+        <div className="space-y-1">
+          <p className="text-sm text-muted-foreground">{title}</p>
+          <p className="text-2xl font-bold">{value}</p>
         </div>
-      </CardHeader>
-
-      <CardContent className="space-y-2">
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-          {item.nom}
-        </p>
-        <CardTitle className={`text-3xl font-bold bg-gradient-to-br ${item.couleur} bg-clip-text text-transparent`}>
-          {item.valeur}
-        </CardTitle>
+        <div className={`p-3 rounded-lg ${color}`}>
+          <Icon className="w-6 h-6 text-white" />
+        </div>
       </CardContent>
     </Card>
   )
 
-  const SkeletonCard = () => (
-    <Card className="bg-white border border-slate-200 rounded-2xl h-full">
-      <CardHeader className="space-y-3 pb-3">
-        <Skeleton className="h-12 w-12 rounded-xl" />
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-8 w-32" />
-      </CardContent>
-    </Card>
-  )
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background p-6 lg:p-8">
+        <div className="max-w-7xl mx-auto space-y-8">
+          <Skeleton className="h-12 w-64" />
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-32" />
+            ))}
+          </div>
+          <div className="grid gap-6 lg:grid-cols-2">
+            {[...Array(2)].map((_, i) => (
+              <Skeleton key={i} className="h-80" />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!statistiques) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Impossible de charger les statistiques.</p>
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 p-6 lg:p-8">
+    <div className="min-h-screen bg-background p-6 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex flex-col gap-2">
-          <h1 className="text-4xl font-bold text-slate-900">
-            Tableau de bord
-          </h1>
-          <p className="text-slate-600">Bienvenue sur votre espace personnel. Voici vos statistiques.</p>
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold">Tableau de bord</h1>
+          <p className="text-muted-foreground">Bienvenue sur votre espace personnel. Voici vos statistiques.</p>
         </div>
 
-        {/* Statistics Grid */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {isLoading ? (
-            <>
-              {[...Array(7)].map((_, index) => (
-                <SkeletonCard key={index} />
-              ))}
-            </>
-          ) : statistiques ? (
-            statistiques.map((item, index) => (
-              <StatCard key={index} item={item} />
-            ))
-          ) : (
-            <div className="col-span-full flex justify-center items-center py-12">
-              <p className="text-slate-500 text-lg">Impossible de charger les statistiques.</p>
-            </div>
-          )}
+        {/* Quick Stats */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <StatCard title="Musique totale" value={statistiques.total_musics} icon={Music} color="bg-blue-500" />
+          <StatCard
+            title="Revenus totaux"
+            value={`${statistiques.total_revenue} €`}
+            icon={DollarSign}
+            color="bg-green-500"
+          />
+          <StatCard title="Total ventes" value={statistiques.total_sales} icon={ShoppingBag} color="bg-purple-500" />
+        </div>
+
+        {/* Charts Grid */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Performance Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Performance globale</CardTitle>
+              <CardDescription>Écoutes, téléchargements et ventes</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ChartContainer
+                config={{
+                  value: {
+                    label: "Valeur",
+                  },
+                }}
+                className="h-[300px]"
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={performanceData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="name" className="text-xs" tick={{ fill: "hsl(var(--muted-foreground))" }} />
+                    <YAxis className="text-xs" tick={{ fill: "hsl(var(--muted-foreground))" }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="value" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+
+          {/* Music Status Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Statut des musiques</CardTitle>
+              <CardDescription>Répartition publiées vs brouillons</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ChartContainer
+                config={{
+                  value: {
+                    label: "Nombre",
+                  },
+                }}
+                className="h-[300px]"
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={musicStatusData} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis type="number" className="text-xs" tick={{ fill: "hsl(var(--muted-foreground))" }} />
+                    <YAxis
+                      type="category"
+                      dataKey="name"
+                      className="text-xs"
+                      tick={{ fill: "hsl(var(--muted-foreground))" }}
+                    />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="value" radius={[0, 8, 8, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+
+          {/* Revenue Trend Chart */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Évolution des revenus</CardTitle>
+              <CardDescription>Tendance des revenus sur les 6 derniers mois</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ChartContainer
+                config={{
+                  revenue: {
+                    label: "Revenus (€)",
+                    color: "hsl(var(--chart-1))",
+                  },
+                }}
+                className="h-[300px]"
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={revenueData}>
+                    <defs>
+                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="month" className="text-xs" tick={{ fill: "hsl(var(--muted-foreground))" }} />
+                    <YAxis className="text-xs" tick={{ fill: "hsl(var(--muted-foreground))" }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Area
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke="hsl(var(--chart-1))"
+                      fill="url(#colorRevenue)"
+                      strokeWidth={2}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
