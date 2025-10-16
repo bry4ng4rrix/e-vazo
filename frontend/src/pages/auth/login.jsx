@@ -229,7 +229,7 @@ const Login = () => {
               <div className="mt-8 text-center">
                 <p className="text-sm text-gray-400">
                   Pas encore de compte ?{' '}
-                  <a href="#" className="font-medium text-cyan-400 hover:text-cyan-300">
+                  <a href="/register" className="font-medium text-cyan-400 hover:text-cyan-300">
                     S'inscrire
                   </a>
                 </p>
