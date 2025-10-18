@@ -11,7 +11,7 @@ from decimal import Decimal
 from datetime import datetime, timedelta
 import os
 
-admin_router = APIRouter(prefix="/admin", tags=["Administration"])
+admin_router = APIRouter(tags=["Administration"])
 
 # ===== MODÈLES POUR LES RÉPONSES ADMIN =====
 

@@ -7,12 +7,14 @@ import Artiste from './pages/artiste/layout'
 import Aprofile from './pages/artiste/pages/profile'
 import Amusique from './pages/artiste/pages/musique'
 import Ahome from './pages/artiste/pages/home'
+import Aindex from './pages/artiste/pages/index'
 
 import Client from './pages/client/client'
 import Cprofile from './pages/client/pages/profiles'
 import Cdownload from './pages/client/pages/download'
 import Cfavorit from './pages/client/pages/favorite'
 import Chome from './pages/client/pages/home'
+
 const App = () => {
 
 
@@ -28,6 +30,7 @@ const App = () => {
 
     <Route path='/artiste' element={<Artiste/>}>
      
+      <Route path='' element={<Aindex/>} />
       <Route path='profile' element={<Aprofile/>} />
       <Route path='musique' element={<Amusique/>} />
 
